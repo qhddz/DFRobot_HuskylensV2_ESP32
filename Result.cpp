@@ -1,34 +1,80 @@
 #include <Result.h>
 
-Result::Result(const void *buf) {
-  PacketHead_t *head = (PacketHead_t *)buf;
-  PacketData_t *packet = (PacketData_t *)head->data;
-  type = head->cmd;
-  ID = packet->ID;
-  level = packet->level;
-  xCenter = packet->first;
-  yCenter = packet->second;
-  width = packet->third;
-  height = packet->fourth;
-  used = 0;
-  String_t *pname = (String_t *)packet->payload;
-  String_t *pcontent =
-      (String_t *)(packet->payload + sizeof(String_t) + pname->length);
-  DBG_KV("sizeof(String_t)=", sizeof(String_t));
-  DBG_KV("pname->length=", pname->length);
-  DBG_KV("pcontent->length=", pcontent->length);
-
-  if (head->data_length == (uint8_t)((uint32_t)pname - (uint32_t)packet)) {
-    DBG("no string data");
-  } else {
-    if (pname->length) {
-      name = pname->toString();
-    }
-    if (pcontent->length) {
-      content = pcontent->toString();
-    }
+Result::Result(JsonObject &obj) {
+  if (obj.containsKey("id")) {
+    ID = obj["id"];
+  } else if (obj.containsKey("maxID")) {
+    maxID = obj["maxID"];
+  } else if (obj.containsKey("resolution")) {
+    resolution = obj["resolution"];
+  } else if (obj.containsKey("boardType")) {
+    boardType = obj["boardType"];
+  } else if (obj.containsKey("multiAlgoNum")) {
+    multiAlgoNum = obj["multiAlgoNum"];
   }
-  DBG_KV("type=", type);
+
+  if (obj.containsKey("level")) {
+    level = obj["level"];
+  } else if (obj.containsKey("mediaType")) {
+    mediaType = obj["mediaType"];
+  } else if (obj.containsKey("retValue")) {
+    retValue = obj["retValue"];
+  } else if (obj.containsKey("retValue")) {
+    lineWidth = obj["lineWidth"];
+  } else if (obj.containsKey("confidence")) {
+    confidence = obj["confidence"];
+  }
+
+  if (obj.containsKey("xCenter")) {
+    xCenter = obj["xCenter"];
+  } else if (obj.containsKey("xTarget")) {
+    xTarget = obj["xTarget"];
+  } else if (obj.containsKey("duration")) {
+    duration = obj["duration"];
+  } else if (obj.containsKey("duration")) {
+    algorithmType = obj["algorithmType"];
+  } else if (obj.containsKey("classID")) {
+    classID = obj["classID"];
+  } else if (obj.containsKey("total_results")) {
+    total_results = obj["total_results"];
+  } else if (obj.containsKey("pitch")) {
+    pitch = obj["pitch"];
+  }
+
+  if (obj.containsKey("yCenter")) {
+    yCenter = obj["yCenter"];
+  } else if (obj.containsKey("yTarget")) {
+    yTarget = obj["yTarget"];
+  } else if (obj.containsKey("total_results_learned")) {
+    total_results_learned = obj["total_results_learned"];
+  } else if (obj.containsKey("yaw")) {
+    yaw = obj["yaw"];
+  }
+
+  if (obj.containsKey("width")) {
+    width = obj["width"];
+  } else if (obj.containsKey("angle")) {
+    angle = obj["angle"];
+  } else if (obj.containsKey("azimuth")) {
+    azimuth = obj["azimuth"];
+  } else if (obj.containsKey("total_blocks")) {
+    total_blocks = obj["total_blocks"];
+  } else if (obj.containsKey("roll")) {
+    roll = obj["roll"];
+  }
+
+  if (obj.containsKey("height")) {
+    height = obj["height"];
+  } else if (obj.containsKey("length")) {
+    length = obj["length"];
+  } else if (obj.containsKey("total_blocks_learned")) {
+    total_blocks_learned = obj["total_blocks_learned"];
+  }
+
+  name = obj["name"].as<String>();
+  content = obj["content"].as<String>();
+  used = 0;
+
   DBG_KV("ID=", ID);
   DBG_KV("xCenter=", xCenter);
   DBG_KV("yCenter=", yCenter);
@@ -47,6 +93,7 @@ Result::~Result() {}
     p++;                                                                       \
     v;                                                                         \
   })
+#if 0
 FaceResult::FaceResult(const void *buf) : Result(buf) {
   DBG("\n");
   PacketHead_t *head = (PacketHead_t *)buf;
@@ -205,6 +252,7 @@ PoseResult::PoseResult(const void *buf) : Result(buf) {
   rankle_y = READ_INT16(pose_data);
   DBG("end parse\n");
 }
+#endif
 
 Result *result[ALGORITHM_COUNT][MAX_RESULT_NUM];
 uint8_t customId[3];

@@ -11,7 +11,27 @@ bool HuskylensV2_MQTT::begin(String host, uint16_t port, String username,
 }
 
 int8_t HuskylensV2_MQTT::getResult(eAlgorithm_t algo) {
-  return getResult(algo);
+  eAlgorithm_t _algo = algo;
+  // 所有结果返回到MQTTProtocolV2内存
+  // 然后将所有权转给HuskylensV2_MQTT
+  algo = toRealID(algo);
+
+  for (uint8_t i = 0; i < MAX_RESULT_NUM; i++) {
+    if (result[algo][i]) {
+      delete result[algo][i];
+      result[algo][i] = NULL;
+    }
+  }
+
+  int8_t count = MQTTProtocolV2::getResult(_algo);
+
+  for (uint8_t i = 0; i < MAX_RESULT_NUM; i++) {
+    // DBG(i);
+    // DBG((long long)ProtocolV2::result[i]);
+    result[algo][i] = result_tmp[i];
+    result_tmp[i] = NULL;
+  }
+  return count;
 }
 
 bool HuskylensV2_MQTT::available(eAlgorithm_t algo) {
@@ -209,7 +229,7 @@ bool HuskylensV2_MQTT::switchAlgorithm(eAlgorithm_t algo) {
   customId[1] = 0;
   customId[2] = 0;
 
-  ret = switchAlgorithm(algo);
+  ret = doSwitchAlgorithm(algo);
   if (ret) {
     if (algo >= ALGORITHM_CUSTOM_BEGIN) {
       customAlgoNum = 1;
@@ -235,118 +255,4 @@ bool HuskylensV2_MQTT::setMultiAlgorithm(eAlgorithm_t algo0, eAlgorithm_t algo1,
   }
 
   return doSetMultiAlgorithm(algo0, algo1, algo2);
-}
-
-uint8_t HuskylensV2_MQTT::learn(eAlgorithm_t algo) {
-  DBG("\n");
-  return learn(algo);
-}
-uint8_t HuskylensV2_MQTT::learnBlock(eAlgorithm_t algo, int16_t x, int16_t y,
-                                     int16_t width, int16_t height) {
-  DBG("\n");
-  return learnBlock(algo, x, y, width, height);
-}
-bool HuskylensV2_MQTT::forgot(eAlgorithm_t algo) {
-  DBG("\n");
-  return forgot(algo);
-}
-String HuskylensV2_MQTT::takePhoto(eResolution_t resolution) {
-  DBG("\n");
-  return takePhoto(resolution);
-}
-String HuskylensV2_MQTT::takeScreenshot() {
-  DBG("\n");
-  return takeScreenshot();
-}
-
-bool HuskylensV2_MQTT::drawUniqueRect(uint32_t color, uint8_t lineWidth,
-                                      int16_t x, int16_t y, int16_t width,
-                                      int16_t height) {
-  DBG("\n");
-  return drawUniqueRect(color, lineWidth, x, y, width, height);
-}
-bool HuskylensV2_MQTT::drawRect(uint32_t color, uint8_t lineWidth, int16_t x,
-                                int16_t y, int16_t width, int16_t height) {
-  DBG("\n");
-  return drawRect(color, lineWidth, x, y, width, height);
-}
-bool HuskylensV2_MQTT::clearRect() {
-  DBG("\n");
-  return clearRect();
-}
-bool HuskylensV2_MQTT::drawText(uint32_t color, uint8_t fontSize, int16_t x,
-                                int16_t y, String text) {
-  DBG("\n");
-  return drawText(color, fontSize, x, y, text);
-}
-bool HuskylensV2_MQTT::clearText() {
-  DBG("\n");
-  return clearText();
-}
-bool HuskylensV2_MQTT::saveKnowledges(eAlgorithm_t algo, uint8_t knowledgeID) {
-  DBG("\n");
-  return saveKnowledges(algo, knowledgeID);
-}
-bool HuskylensV2_MQTT::loadKnowledges(eAlgorithm_t algo, uint8_t knowledgeID) {
-  DBG("\n");
-  return loadKnowledges(algo, knowledgeID);
-}
-bool HuskylensV2_MQTT::setNameByID(eAlgorithm_t algo, uint8_t id, String name) {
-  DBG("\n");
-  return setNameByID(algo, id, name);
-}
-
-bool HuskylensV2_MQTT::doSetMultiAlgorithm(eAlgorithm_t algo0,
-                                           eAlgorithm_t algo1,
-                                           eAlgorithm_t algo2) {
-  DBG("\n");
-  return doSetMultiAlgorithm(algo0, algo1, algo2);
-}
-bool HuskylensV2_MQTT::setMultiAlgorithmRatio(int8_t ratio0, int8_t ratio1,
-                                              int8_t ratio2) {
-  DBG("\n");
-  return setMultiAlgorithmRatio(ratio0, ratio1, ratio2);
-}
-
-bool HuskylensV2_MQTT::getAlgoParamBool(eAlgorithm_t algo, String key) {
-  DBG("\n");
-  return getAlgoParamBool(algo, key);
-}
-float HuskylensV2_MQTT::getAlgoParamFloat(eAlgorithm_t algo, String key) {
-  DBG("\n");
-  return getAlgoParamFloat(algo, key);
-}
-String HuskylensV2_MQTT::getAlgoParamString(eAlgorithm_t algo, String key) {
-  DBG("\n");
-  return getAlgoParamString(algo, key);
-}
-
-bool HuskylensV2_MQTT::setAlgoParamBool(eAlgorithm_t algo, String key,
-                                        bool value) {
-  DBG("\n");
-  return setAlgoParamBool(algo, key, value);
-}
-bool HuskylensV2_MQTT::setAlgoParamFloat(eAlgorithm_t algo, String key,
-                                         float value) {
-  DBG("\n");
-  return setAlgoParamFloat(algo, key, value);
-}
-bool HuskylensV2_MQTT::setAlgoParamString(eAlgorithm_t algo, String key,
-                                          String value) {
-  DBG("\n");
-  return setAlgoParamString(algo, key, value);
-}
-bool HuskylensV2_MQTT::updateAlgoParams(eAlgorithm_t algo) {
-  DBG("\n");
-  return updateAlgoParams(algo);
-}
-bool HuskylensV2_MQTT::startRecording(eMediaType_t mediaType, int16_t duration,
-                                      String filename,
-                                      eResolution_t resolution) {
-  DBG("\n");
-  return startRecording(mediaType, duration, filename, resolution);
-}
-bool HuskylensV2_MQTT::stopRecording(eMediaType_t mediaType) {
-  DBG("\n");
-  return stopRecording(mediaType);
 }

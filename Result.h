@@ -1,8 +1,10 @@
 #ifndef DFROBOT_HUSKEYLENS_V2_COMMON_H
 #define DFROBOT_HUSKEYLENS_V2_COMMON_H
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <HardwareSerial.h>
 #include <Stream.h>
+
 #if 1
 #define DBG(x)                                                                 \
   do {                                                                         \
@@ -263,7 +265,7 @@ typedef struct __attribute__((packed)) {
 
 class Result : public PacketData_t {
 public:
-  Result(const void *buf);
+  Result(JsonObject &obj);
   ~Result();
 
 public:

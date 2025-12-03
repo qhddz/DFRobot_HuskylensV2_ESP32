@@ -33,7 +33,9 @@
         "xstddef": "cpp",
         "xstring": "cpp",
         "xtr1common": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "map": "cpp",
+        "xtree": "cpp"
     },
     "C_Cpp.intelliSenseEngine": "default",
     "C_Cpp.clang_format_style": "{           BasedOnStyle: LLVM,     IndentWidth: 4,     UseTab: Never,     AlignConsecutiveAssignments: true,     AlignConsecutiveDeclarations: true,     AlignConsecutiveMacros: true,     BreakBeforeBraces: Attach,     AllowShortFunctionsOnASingleLine: Empty,     ColumnLimit: 0 ,SortIncludes: false }",

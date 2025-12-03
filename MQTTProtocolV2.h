@@ -46,7 +46,7 @@ public:
   bool playMusic(String name, int16_t volume);
   bool stopMusic();
 
-  bool switchAlgorithm(eAlgorithm_t algo);
+  bool doSwitchAlgorithm(eAlgorithm_t algo);
   bool doSetMultiAlgorithm(eAlgorithm_t algo0, eAlgorithm_t algo1,
                            eAlgorithm_t algo2 = ALGORITHM_ANY);
   bool setMultiAlgorithmRatio(int8_t ratio0, int8_t ratio1, int8_t ratio2 = -1);
@@ -64,7 +64,7 @@ public:
                       String filename = "",
                       eResolution_t resolution = RESOLUTION_DEFAULT);
   bool stopRecording(eMediaType_t mediaType);
-  bool sendAndWait(std::string &command);
+  bool sendAndWait(String &command);
 
 public:
   int16_t maxID[ALGORITHM_BUILTIN_COUNT];
