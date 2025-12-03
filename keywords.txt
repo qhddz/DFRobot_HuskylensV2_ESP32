@@ -37,7 +37,7 @@ switchAlgorithm	KEYWORD2
 takePhoto	KEYWORD2
 takeScreenshot	KEYWORD2
 learn	KEYWORD2
-forgot	KEYWORD2
+forget	KEYWORD2
 drawUniqueRect	KEYWORD2
 drawRect	KEYWORD2
 clearRect	KEYWORD2

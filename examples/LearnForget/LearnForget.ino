@@ -60,7 +60,7 @@ void loop() {
   Serial.println(id);
   delay(10000);
 
-  ret = huskylens.forgot(ALGORITHM_FACE_RECOGNITION);
+  ret = huskylens.forget(ALGORITHM_FACE_RECOGNITION);
   Serial.print("forget ret=");
   Serial.println(ret);
   delay(10000);
@@ -71,7 +71,7 @@ void loop() {
   Serial.println(id);
   delay(10000);
 
-  ret = huskylens.forgot(ALGORITHM_FACE_RECOGNITION);
+  ret = huskylens.forget(ALGORITHM_FACE_RECOGNITION);
   Serial.print("forget ret=");
   Serial.println(ret);
   delay(10000);

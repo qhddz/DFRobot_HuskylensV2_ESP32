@@ -162,12 +162,12 @@ bool learn(eAlgorithm_t algo);
 bool learnBlock(eAlgorithm_t algo, int16_t x, int16_t y, int16_t width, int16_t height);
 
 /**
- * @fn forgot
+ * @fn forget
  * @brief Forget all learned objects for a specific algorithm
  * @param algo The algorithm to forget learned objects for
  * @return true if forgetting is successful, false otherwise
  */
-bool forgot(eAlgorithm_t algo);
+bool forget(eAlgorithm_t algo);
 
 /**
  * @fn saveKnowledges
