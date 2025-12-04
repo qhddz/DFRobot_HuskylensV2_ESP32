@@ -1,6 +1,13 @@
 #include <DFRobot_HuskylensV2_MQTT.h>
 #include <WiFi.h>
 
+#define PRINT_ITEM(item)                                                       \
+  Serial.print("result->" #item "=(");                                         \
+  Serial.print(result->item##_x);                                              \
+  Serial.print(",");                                                           \
+  Serial.print(result->item##_y);                                              \
+  Serial.println(")");
+
 const char *ssid = "wanghui";
 const char *pass = "dfrobot2011";
 
@@ -53,33 +60,33 @@ void loop() {
     Serial.println(result->name);
     Serial.print("result->content=");
     Serial.println(result->content);
-    /*
-        PRINT_ITEM(wrist);
 
-        PRINT_ITEM(thumb_cmc);
-        PRINT_ITEM(thumb_mcp);
-        PRINT_ITEM(thumb_ip);
-        PRINT_ITEM(thumb_tip);
+    PRINT_ITEM(wrist);
 
-        PRINT_ITEM(index_finger_mcp);
-        PRINT_ITEM(index_finger_pip);
-        PRINT_ITEM(index_finger_dip);
-        PRINT_ITEM(index_finger_tip);
+    PRINT_ITEM(thumb_cmc);
+    PRINT_ITEM(thumb_mcp);
+    PRINT_ITEM(thumb_ip);
+    PRINT_ITEM(thumb_tip);
 
-        PRINT_ITEM(middle_finger_mcp);
-        PRINT_ITEM(middle_finger_pip);
-        PRINT_ITEM(middle_finger_dip);
-        PRINT_ITEM(middle_finger_tip);
+    PRINT_ITEM(index_finger_mcp);
+    PRINT_ITEM(index_finger_pip);
+    PRINT_ITEM(index_finger_dip);
+    PRINT_ITEM(index_finger_tip);
 
-        PRINT_ITEM(ring_finger_mcp);
-        PRINT_ITEM(ring_finger_pip);
-        PRINT_ITEM(ring_finger_dip);
-        PRINT_ITEM(ring_finger_tip);
+    PRINT_ITEM(middle_finger_mcp);
+    PRINT_ITEM(middle_finger_pip);
+    PRINT_ITEM(middle_finger_dip);
+    PRINT_ITEM(middle_finger_tip);
 
-        PRINT_ITEM(pinky_finger_mcp);
-        PRINT_ITEM(pinky_finger_pip);
-        PRINT_ITEM(pinky_finger_dip);
-        PRINT_ITEM(pinky_finger_tip);*/
+    PRINT_ITEM(ring_finger_mcp);
+    PRINT_ITEM(ring_finger_pip);
+    PRINT_ITEM(ring_finger_dip);
+    PRINT_ITEM(ring_finger_tip);
+
+    PRINT_ITEM(pinky_finger_mcp);
+    PRINT_ITEM(pinky_finger_pip);
+    PRINT_ITEM(pinky_finger_dip);
+    PRINT_ITEM(pinky_finger_tip);
   }
   delay(5000);
   delay(5000);

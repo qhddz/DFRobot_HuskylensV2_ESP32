@@ -46,19 +46,6 @@ void gbegin(String _host, uint16_t _port, String _username, String _password) {
   mqttClient.loopStart();
   log_i("%s(): %d", __func__, __LINE__);
 }
-
-void playMusic(String filename, int16_t volume) {
-  log_i("%s(): %d", __func__, __LINE__);
-  std::string msg = R"({
-        "cmd": "play_music",
-        "algorithm": 0,
-        "volume": 50,
-        "filename": "abc.mp3",
-        "correlation_id": "arduino-mqtt-" + String(correlation_id++)
-    })";
-  mqttClient.publish(publishTopic, msg, 0, false);
-}
-
 bool MQTTProtocolV2::begin(String &_host, uint16_t _port, String &_username,
                            String &_password) {
   gbegin(_host, _port, _username, _password);
@@ -78,6 +65,7 @@ int8_t MQTTProtocolV2::getResult(eAlgorithm_t algo) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "get_result";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
   String jsonStr;
@@ -100,13 +88,12 @@ int8_t MQTTProtocolV2::getResult(eAlgorithm_t algo) {
       JsonArray &results = resp["results"];
       for (uint8_t i = 0; i < results.size(); i++) {
         JsonObject &item = results[i];
-        int algorithm = item["algorithm"];
-        if (algorithm == ALGORITHM_FACE_RECOGNITION) {
-          result_tmp[i] = new Result(item);
-        } else if (algorithm == ALGORITHM_HAND_RECOGNITION) {
-          result_tmp[i] = new Result(item);
-        } else if (algorithm == ALGORITHM_POSE_RECOGNITION) {
-          result_tmp[i] = new Result(item);
+        if (algo == ALGORITHM_FACE_RECOGNITION) {
+          result_tmp[i] = new FaceResult(item);
+        } else if (algo == ALGORITHM_HAND_RECOGNITION) {
+          result_tmp[i] = new HandResult(item);
+        } else if (algo == ALGORITHM_POSE_RECOGNITION) {
+          result_tmp[i] = new PoseResult(item);
         } else {
           result_tmp[i] = new Result(item);
         }
@@ -121,6 +108,7 @@ uint8_t MQTTProtocolV2::learn(eAlgorithm_t algo) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "learn";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
   String jsonStr;
@@ -138,6 +126,7 @@ uint8_t MQTTProtocolV2::learnBlock(eAlgorithm_t algo, int16_t x, int16_t y,
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "learn_block";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["x"] = x;
   root["y"] = y;
@@ -158,6 +147,7 @@ bool MQTTProtocolV2::forget(eAlgorithm_t algo) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "forget";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
 
@@ -176,6 +166,7 @@ bool MQTTProtocolV2::doSwitchAlgorithm(eAlgorithm_t algo) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "switch_algorithm";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
 
@@ -197,6 +188,7 @@ bool MQTTProtocolV2::drawUniqueRect(uint32_t color, uint8_t lineWidth,
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "draw_unique_rect";
+  root["peer"] = "arduino";
   JsonArray &arr = root.createNestedArray("color");
   arr.add((color >> 16) & 0xFF);
   arr.add((color >> 8) & 0xFF);
@@ -224,6 +216,7 @@ bool MQTTProtocolV2::drawRect(uint32_t color, uint8_t lineWidth, int16_t x,
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "draw_rect";
+  root["peer"] = "arduino";
   JsonArray &arr = root.createNestedArray("color");
   arr.add((color >> 16) & 0xFF);
   arr.add((color >> 8) & 0xFF);
@@ -250,6 +243,7 @@ bool MQTTProtocolV2::clearRect() {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "clear_rect";
+  root["peer"] = "arduino";
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
 
   String jsonStr;
@@ -268,6 +262,7 @@ bool MQTTProtocolV2::drawText(uint32_t color, uint8_t fontSize, int16_t x,
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "draw_text";
+  root["peer"] = "arduino";
   root["font_size"] = fontSize;
   root["text"] = text;
 
@@ -295,6 +290,7 @@ bool MQTTProtocolV2::clearText() {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "clear_text";
+  root["peer"] = "arduino";
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
 
   String jsonStr;
@@ -312,6 +308,7 @@ bool MQTTProtocolV2::saveKnowledges(eAlgorithm_t algo, uint8_t knowledgeID) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "save_knowledges";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["knowledge_id"] = knowledgeID;
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
@@ -331,6 +328,7 @@ bool MQTTProtocolV2::loadKnowledges(eAlgorithm_t algo, uint8_t knowledgeID) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "load_knowledges";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["knowledge_id"] = knowledgeID;
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
@@ -351,6 +349,7 @@ bool MQTTProtocolV2::playMusic(String name, int16_t volume) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "play_music";
+  root["peer"] = "arduino";
   root["algorithm"] = 0;
   root["volume"] = volume;
   root["filename"] = name;
@@ -386,6 +385,7 @@ bool MQTTProtocolV2::setNameByID(eAlgorithm_t algo, uint8_t id, String name) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "set_name_by_id";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["id"] = id;
   root["name"] = name;
@@ -408,6 +408,7 @@ bool MQTTProtocolV2::doSetMultiAlgorithm(eAlgorithm_t algo0, eAlgorithm_t algo1,
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "set_multi_algorithm";
+  root["peer"] = "arduino";
   JsonArray &arr = root.createNestedArray("algorithms");
   if (algo0 != ALGORITHM_ANY)
     arr.add((uint8_t)algo0);
@@ -433,6 +434,7 @@ bool MQTTProtocolV2::setMultiAlgorithmRatio(int8_t ratio0, int8_t ratio1,
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["cmd"] = "set_multi_ratio";
+  root["peer"] = "arduino";
   JsonArray &arr = root.createNestedArray("ratios");
   if (ratio0 != -1)
     arr.add(ratio0);
@@ -459,6 +461,7 @@ bool MQTTProtocolV2::getAlgoParam(eAlgorithm_t algo, JsonObject *&outParams,
 
   JsonObject &root = buffer.createObject();
   root["cmd"] = "get_algorithm_params";
+  root["peer"] = "arduino";
   root["algorithm"] = (uint8_t)algo;
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
 
@@ -526,6 +529,7 @@ bool MQTTProtocolV2::setAlgoParam(eAlgorithm_t algo, JsonObject &params) {
     JsonObject &root = jsonBuffer.createObject();
 
     root["cmd"] = "set_algorithm_params";
+    root["peer"] = "arduino";
     root["algorithm"] = (uint8_t)algo;
 
     JsonArray &arr = root.createNestedArray("params");
@@ -573,6 +577,7 @@ bool MQTTProtocolV2::startRecording(eMediaType_t mediaType, int16_t duration,
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["filename"] = filename;
+  root["peer"] = "arduino";
   if (mediaType == MEDIA_TYPE_AUDIO) {
     root["cmd"] = "start_recording_audio";
   } else if (mediaType == MEDIA_TYPE_VIDEO) {
@@ -600,6 +605,7 @@ bool MQTTProtocolV2::stopRecording(eMediaType_t mediaType) {
   } else if (mediaType == MEDIA_TYPE_VIDEO) {
     root["cmd"] = "stop_recording_video";
   }
+  root["peer"] = "arduino";
   root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
 
   String jsonStr;
@@ -626,6 +632,7 @@ String MQTTProtocolV2::takePhoto(eResolution_t resolution) {
         {RESOLUTION_1920x1080, "1920x1080"},
     };
     root["cmd"] = "take_photo";
+    root["peer"] = "arduino";
     root["resolution"] = resolutionMap[resolution];
     root["correlation_id"] = "arduino-mqtt-" + String(correlation_id++);
 

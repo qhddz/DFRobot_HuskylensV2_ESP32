@@ -5,7 +5,7 @@
 #include <HardwareSerial.h>
 #include <Stream.h>
 
-#if 1
+#if 0
 #define DBG(x)                                                                 \
   do {                                                                         \
     Serial.print(__FUNCTION__);                                                \
@@ -277,7 +277,7 @@ public:
 
 class FaceResult : public Result {
 public:
-  FaceResult(const void *buf);
+  FaceResult(JsonObject &obj);
 
 public:
   int16_t leye_x;
@@ -294,7 +294,7 @@ public:
 
 class HandResult : public Result {
 public:
-  HandResult(const void *buf);
+  HandResult(JsonObject &obj);
 
 public:
   int16_t wrist_x, wrist_y;         // 手腕
@@ -326,7 +326,7 @@ public:
 
 class PoseResult : public Result {
 public:
-  PoseResult(const void *buf);
+  PoseResult(JsonObject &obj);
 
 public:
   int16_t nose_x, nose_y;

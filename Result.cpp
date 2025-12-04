@@ -86,173 +86,91 @@ Result::Result(JsonObject &obj) {
 }
 Result::~Result() {}
 
-#define READ_INT16(p)                                                          \
-  ({                                                                           \
-    int16_t v;                                                                 \
-    memcpy(&v, p, sizeof(v));                                                  \
-    p++;                                                                       \
-    v;                                                                         \
-  })
-#if 0
-FaceResult::FaceResult(const void *buf) : Result(buf) {
-  DBG("\n");
-  PacketHead_t *head = (PacketHead_t *)buf;
-  PacketData_t *packet = (PacketData_t *)head->data;
-  String_t *pname = (String_t *)packet->payload;
-  String_t *pcontent =
-      (String_t *)(packet->payload + sizeof(String_t) + pname->length);
-  if (head->data_length == (uint8_t)((uint32_t)pname - (uint32_t)packet)) {
-    DBG("no string data");
-    return;
-  }
-  int16_t *face_data = (int16_t *)(packet->payload + pname->length +
-                                   pcontent->length + sizeof(String_t) * 2);
-  if (head->data_length == (uint8_t)((uint32_t)face_data - (uint32_t)packet)) {
-    DBG("no externed data");
-    return;
-  }
-
-  leye_x = READ_INT16(face_data);
-  leye_y = READ_INT16(face_data);
-  reye_x = READ_INT16(face_data);
-  reye_y = READ_INT16(face_data);
-  nose_x = READ_INT16(face_data);
-  nose_y = READ_INT16(face_data);
-  lmouth_x = READ_INT16(face_data);
-  lmouth_y = READ_INT16(face_data);
-  rmouth_x = READ_INT16(face_data);
-  rmouth_y = READ_INT16(face_data);
+int16_t read16(JsonObject &obj, int &offset) {
+  JsonArray &arr = obj["extended"].asArray();
+  int16_t low = arr[offset++];
+  int16_t high = arr[offset++];
+  return low + (high << 8);
 }
 
-HandResult::HandResult(const void *buf) : Result(buf) {
-  DBG("\n");
-  PacketHead_t *head = (PacketHead_t *)buf;
-  PacketData_t *packet = (PacketData_t *)head->data;
-  String_t *pname = (String_t *)packet->payload;
-  String_t *pcontent =
-      (String_t *)(packet->payload + sizeof(String_t) + pname->length);
+FaceResult::FaceResult(JsonObject &obj) : Result(obj) {
+  int16_t *fields[] = {&leye_x, &leye_y,   &reye_x,   &reye_y,   &nose_x,
+                       &nose_y, &lmouth_x, &lmouth_y, &rmouth_x, &rmouth_y};
 
-  if (head->data_length == (uint8_t)((uint32_t)pname - (uint32_t)packet)) {
-    DBG("no string data");
-    return;
+  int offset = 0;
+  const size_t count = sizeof(fields) / sizeof(fields[0]);
+  for (int i = 0; i < count; i++) {
+    *fields[i] = read16(obj, offset);
   }
-  int16_t *hand_data = (int16_t *)(packet->payload + pname->length +
-                                   pcontent->length + sizeof(String_t) * 2);
-  if (head->data_length <= (uint8_t)((uint32_t)hand_data - (uint32_t)packet)) {
-    DBG("no externed data");
-    return;
-  }
-
-  wrist_x = READ_INT16(hand_data); // 手腕
-  wrist_y = READ_INT16(hand_data);
-  DBG_HEX(wrist_x);
-  DBG_HEX(wrist_y);
-  thumb_cmc_x = READ_INT16(hand_data);
-  thumb_cmc_y = READ_INT16(hand_data); // 拇指根部
-  thumb_mcp_x = READ_INT16(hand_data);
-  thumb_mcp_y = READ_INT16(hand_data); // 拇指中间关节
-  thumb_ip_x = READ_INT16(hand_data);
-  thumb_ip_y = READ_INT16(hand_data); // 拇指第二关节
-  thumb_tip_x = READ_INT16(hand_data);
-  thumb_tip_y = READ_INT16(hand_data); // 拇指指尖
-
-  index_finger_mcp_x = READ_INT16(hand_data);
-  index_finger_mcp_y = READ_INT16(hand_data); // 食指根部
-  index_finger_pip_x = READ_INT16(hand_data);
-  index_finger_pip_y = READ_INT16(hand_data); // 食指第一关节
-  index_finger_dip_x = READ_INT16(hand_data);
-  index_finger_dip_y = READ_INT16(hand_data); // 食指第二关节
-  index_finger_tip_x = READ_INT16(hand_data);
-  index_finger_tip_y = READ_INT16(hand_data); // 食指指尖
-  middle_finger_mcp_x = READ_INT16(hand_data);
-  middle_finger_mcp_y = READ_INT16(hand_data); // 中指根部
-
-  middle_finger_pip_x = READ_INT16(hand_data);
-  middle_finger_pip_y = READ_INT16(hand_data); // 中指第一关节
-  middle_finger_dip_x = READ_INT16(hand_data);
-  middle_finger_dip_y = READ_INT16(hand_data); // 中指第二关节
-  middle_finger_tip_x = READ_INT16(hand_data);
-  middle_finger_tip_y = READ_INT16(hand_data); // 中指指尖
-  ring_finger_mcp_x = READ_INT16(hand_data);
-  ring_finger_mcp_y = READ_INT16(hand_data); // 无名指根部
-  ring_finger_pip_x = READ_INT16(hand_data);
-  ring_finger_pip_y = READ_INT16(hand_data); // 无名指第一关节
-
-  ring_finger_dip_x = READ_INT16(hand_data);
-  ring_finger_dip_y = READ_INT16(hand_data); // 无名指第二关节
-  ring_finger_tip_x = READ_INT16(hand_data);
-  ring_finger_tip_y = READ_INT16(hand_data); // 无名指指尖
-  pinky_finger_mcp_x = READ_INT16(hand_data);
-  pinky_finger_mcp_y = READ_INT16(hand_data); // 小指根部
-  pinky_finger_pip_x = READ_INT16(hand_data);
-  pinky_finger_pip_y = READ_INT16(hand_data); // 小指第一关节
-  pinky_finger_dip_x = READ_INT16(hand_data);
-  pinky_finger_dip_y = READ_INT16(hand_data); // 小指第二关节
-  DBG_HEX(pinky_finger_dip_x);
-  DBG_HEX(pinky_finger_dip_y);
-  pinky_finger_tip_x = READ_INT16(hand_data);
-  pinky_finger_tip_y = READ_INT16(hand_data); // 小指指尖
-  DBG_HEX(pinky_finger_tip_x);
-  DBG_HEX(pinky_finger_tip_y);
 }
+HandResult::HandResult(JsonObject &obj) : Result(obj) {
+  int16_t *fields[] = {&wrist_x,
+                       &wrist_y,
+                       &thumb_cmc_x,
+                       &thumb_cmc_y,
+                       &thumb_mcp_x,
+                       &thumb_mcp_y,
+                       &thumb_ip_x,
+                       &thumb_ip_y,
+                       &thumb_tip_x,
+                       &thumb_tip_y,
+                       &index_finger_mcp_x,
+                       &index_finger_mcp_y,
+                       &index_finger_pip_x,
+                       &index_finger_pip_y,
+                       &index_finger_dip_x,
+                       &index_finger_dip_y,
+                       &index_finger_tip_x,
+                       &index_finger_tip_y,
+                       &middle_finger_mcp_x,
+                       &middle_finger_mcp_y,
+                       &middle_finger_pip_x,
+                       &middle_finger_pip_y,
+                       &middle_finger_dip_x,
+                       &middle_finger_dip_y,
+                       &middle_finger_tip_x,
+                       &middle_finger_tip_y,
+                       &ring_finger_mcp_x,
+                       &ring_finger_mcp_y,
+                       &ring_finger_pip_x,
+                       &ring_finger_pip_y,
+                       &ring_finger_dip_x,
+                       &ring_finger_dip_y,
+                       &ring_finger_tip_x,
+                       &ring_finger_tip_y,
+                       &pinky_finger_mcp_x,
+                       &pinky_finger_mcp_y,
+                       &pinky_finger_pip_x,
+                       &pinky_finger_pip_y,
+                       &pinky_finger_dip_x,
+                       &pinky_finger_dip_y,
+                       &pinky_finger_tip_x,
+                       &pinky_finger_tip_y};
 
-PoseResult::PoseResult(const void *buf) : Result(buf) {
-  DBG("begin parse\n");
-  PacketHead_t *head = (PacketHead_t *)buf;
-  PacketData_t *packet = (PacketData_t *)head->data;
-  String_t *pname = (String_t *)packet->payload;
-  String_t *pcontent =
-      (String_t *)(packet->payload + sizeof(String_t) + pname->length);
-  int16_t *pose_data = (int16_t *)(packet->payload + pname->length +
-                                   pcontent->length + sizeof(String_t) * 2);
-  if (head->data_length == (uint8_t)((uint32_t)pname - (uint32_t)packet)) {
-    DBG("no string data");
-    return;
+  int offset = 0;
+  const size_t count = sizeof(fields) / sizeof(fields[0]);
+
+  for (size_t i = 0; i < count; i++) {
+    *fields[i] = read16(obj, offset);
   }
-  if (head->data_length == (uint8_t)((uint32_t)pose_data - (uint32_t)packet)) {
-    DBG("no externed data");
-    return;
-  }
-  DBG("hax externed data");
-  DBG_PRINTLN(head->data_length -
-              (uint8_t)((uint32_t)pose_data - (uint32_t)packet));
-  nose_x = READ_INT16(pose_data);
-  nose_y = READ_INT16(pose_data);
-  leye_x = READ_INT16(pose_data);
-  leye_y = READ_INT16(pose_data);
-  reye_x = READ_INT16(pose_data);
-  reye_y = READ_INT16(pose_data);
-  lear_x = READ_INT16(pose_data);
-  lear_y = READ_INT16(pose_data);
-  rear_x = READ_INT16(pose_data);
-  rear_y = READ_INT16(pose_data);
-  lshoulder_x = READ_INT16(pose_data);
-  lshoulder_y = READ_INT16(pose_data);
-  rshoulder_x = READ_INT16(pose_data);
-  rshoulder_y = READ_INT16(pose_data);
-  lelbow_x = READ_INT16(pose_data);
-  lelbow_y = READ_INT16(pose_data);
-  relbow_x = READ_INT16(pose_data);
-  relbow_y = READ_INT16(pose_data);
-  lwrist_x = READ_INT16(pose_data);
-  lwrist_y = READ_INT16(pose_data);
-  rwrist_x = READ_INT16(pose_data);
-  rwrist_y = READ_INT16(pose_data);
-  lhip_x = READ_INT16(pose_data);
-  lhip_y = READ_INT16(pose_data);
-  rhip_x = READ_INT16(pose_data);
-  rhip_y = READ_INT16(pose_data);
-  lknee_x = READ_INT16(pose_data);
-  lknee_y = READ_INT16(pose_data);
-  rknee_x = READ_INT16(pose_data);
-  rknee_y = READ_INT16(pose_data);
-  lankle_x = READ_INT16(pose_data);
-  lankle_y = READ_INT16(pose_data);
-  rankle_x = READ_INT16(pose_data);
-  rankle_y = READ_INT16(pose_data);
-  DBG("end parse\n");
 }
-#endif
+PoseResult::PoseResult(JsonObject &obj) : Result(obj) {
+  int16_t *fields[] = {
+      &nose_x,      &nose_y,      &leye_x,      &leye_y,      &reye_x,
+      &reye_y,      &lear_x,      &lear_y,      &rear_x,      &rear_y,
+      &lshoulder_x, &lshoulder_y, &rshoulder_x, &rshoulder_y, &lelbow_x,
+      &lelbow_y,    &relbow_x,    &relbow_y,    &lwrist_x,    &lwrist_y,
+      &rwrist_x,    &rwrist_y,    &lhip_x,      &lhip_y,      &rhip_x,
+      &rhip_y,      &lknee_x,     &lknee_y,     &rknee_x,     &rknee_y,
+      &lankle_x,    &lankle_y,    &rankle_x,    &rankle_y};
+
+  int offset = 0;
+  const size_t count = sizeof(fields) / sizeof(fields[0]);
+
+  for (size_t i = 0; i < count; i++) {
+    *fields[i] = read16(obj, offset);
+  }
+}
 
 Result *result[ALGORITHM_COUNT][MAX_RESULT_NUM];
 uint8_t customId[3];
