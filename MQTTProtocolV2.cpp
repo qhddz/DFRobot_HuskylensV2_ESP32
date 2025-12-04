@@ -30,6 +30,11 @@ void subscribeCB(const std::string &topic, const std::string &payload) {
 
 MQTTProtocolV2::MQTTProtocolV2() {};
 void gbegin(String _host, uint16_t _port, String _username, String _password) {
+  static bool initialized = false;
+  if (initialized) {
+    return;
+  }
+  initialized = true;
   host = _host;
   port = _port;
   username = _username;
