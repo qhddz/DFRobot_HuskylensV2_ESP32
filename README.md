@@ -34,26 +34,14 @@ Alternatively, you can install the library through the Arduino Library Manager b
 ```cpp
 /**
  * @fn begin
- * @brief Initialize the HuskyLens V2 using UART communication
- * @param streamInput The serial port to use for communication
+ * @brief Initialize the HuskyLens V2 using MQTT communication
+ * @param host Huskylens ip address
+ * @param port Huskylens mqtt broker port, default 1883
+ * @param username Huskylens mqtt broker username, default huskylens
+ * @param password Huskylens mqtt broker username, default dfrobot
  * @return true if initialization succeeds, false otherwise
  */
-bool begin(Stream &streamInput);
-
-/**
- * @fn begin
- * @brief Initialize the HuskyLens V2 using I2C communication
- * @param streamInput The I2C interface to use for communication
- * @return true if initialization succeeds, false otherwise
- */
-bool begin(TwoWire &streamInput);
-
-/**
- * @fn knock
- * @brief Check if HuskyLens V2 is connected
- * @return true if HuskyLens V2 is connected, false otherwise
- */
-bool knock(void);
+bool begin(String host, uint16_t port, String username, String password);
 ```
 
 ### Algorithm Control Methods
@@ -303,13 +291,7 @@ Refer to the table below for the supported algorithms and their result elements.
 
 | Development Board | Work Well | Work Wrong | Untested | Remarks |
 | ------------ | :--: | :----: | :----: | :--: |
-| Arduino UNO | √ | | | |
-| Arduino Mega | √ | | | |
-| Arduino Leonardo | √ | | | |
 | ESP32 | √ | | | Large memory support |
-| ESP8266 | √ | | | Large memory support |
-| Raspberry Pi Pico | √ | | | |
-| micro:bit | √ | | | Large memory support |
 
 ## History
 

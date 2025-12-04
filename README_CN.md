@@ -34,26 +34,14 @@
 ```cpp
 /**
  * @fn begin
- * @brief 使用UART通信初始化二哈识图V2
- * @param streamInput 用于通信的串口
- * @return 初始化成功返回true，否则返回false
- */
-bool begin(Stream &streamInput);
-
-/**
- * @fn begin
  * @brief 使用I2C通信初始化二哈识图V2
- * @param streamInput 用于通信的I2C接口
+ * @param host Huskylens的IP地址
+ * @param port Huskylens 内部 MQTT Broker的端口，默认1883
+ * @param username Huskylens 内部 MQTT Broker的用户名，默认huskylens
+ * @param password Huskylens 内部 MQTT Broker的密码，默认dfrobot
  * @return 初始化成功返回true，否则返回false
  */
-bool begin(TwoWire &streamInput);
-
-/**
- * @fn knock
- * @brief 检查二哈识图V2是否已连接
- * @return 二哈识图V2已连接返回true，否则返回false
- */
-bool knock(void);
+bool begin(String host, uint16_t port, String username, String password);
 ```
 
 ### 算法控制方法
@@ -250,7 +238,7 @@ bool clearRect(eAlgorithm_t algo);
 bool clearText(eAlgorithm_t algo);
 ```
 
-### 多算法支持（适用于大内存开发板）
+### 多算法支持
 
 ```cpp
 /**
